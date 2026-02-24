@@ -79,6 +79,9 @@ exports.loginStudent = async (req, res) => {
 exports.registerTeacher = async (req, res) => {
     try {
         const { teacherId, name, subjects, password } = req.body;
+        const cleanedSubjects = Array.isArray(subjects)
+            ? [...new Set(subjects.map((s) => String(s).trim()).filter(Boolean))]
+            : [];
 
         // Check if teacher exists
         let teacher = await Teacher.findOne({ teacherId });
@@ -94,7 +97,7 @@ exports.registerTeacher = async (req, res) => {
         teacher = new Teacher({
             teacherId,
             name,
-            subjects,
+            subjects: cleanedSubjects,
             password: hashedPassword
         });
 
@@ -136,7 +139,13 @@ exports.loginTeacher = async (req, res) => {
             { expiresIn: '7d' },
             (err, token) => {
                 if (err) throw err;
-                res.json({ token, teacher: { name: teacher.name, teacherId: teacher.teacherId, subjects: teacher.subjects } });
+                const cleanedSubjects = Array.isArray(teacher.subjects)
+                    ? teacher.subjects.map((s) => String(s).trim()).filter(Boolean)
+                    : [];
+                res.json({
+                    token,
+                    teacher: { name: teacher.name, teacherId: teacher.teacherId, subjects: cleanedSubjects }
+                });
             }
         );
     } catch (err) {
