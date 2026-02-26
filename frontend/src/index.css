@@ -1,111 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   body {
-    @apply bg-gray-50 text-gray-900;
+    @apply bg-[#fdfaf6] text-[#1f1d1d] antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   }
-  :root {
+}
 
-    --background: 0 0% 100%;
-
-    --foreground: 0 0% 3.9%;
-
-    --card: 0 0% 100%;
-
-    --card-foreground: 0 0% 3.9%;
-
-    --popover: 0 0% 100%;
-
-    --popover-foreground: 0 0% 3.9%;
-
-    --primary: 0 0% 9%;
-
-    --primary-foreground: 0 0% 98%;
-
-    --secondary: 0 0% 96.1%;
-
-    --secondary-foreground: 0 0% 9%;
-
-    --muted: 0 0% 96.1%;
-
-    --muted-foreground: 0 0% 45.1%;
-
-    --accent: 0 0% 96.1%;
-
-    --accent-foreground: 0 0% 9%;
-
-    --destructive: 0 84.2% 60.2%;
-
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 0 0% 89.8%;
-
-    --input: 0 0% 89.8%;
-
-    --ring: 0 0% 3.9%;
-
-    --chart-1: 12 76% 61%;
-
-    --chart-2: 173 58% 39%;
-
-    --chart-3: 197 37% 24%;
-
-    --chart-4: 43 74% 66%;
-
-    --chart-5: 27 87% 67%;
-
-    --radius: 0.5rem
+@layer utilities {
+  .podia-btn {
+    @apply bg-[#1f1d1d] text-white font-bold rounded-full hover:bg-[#333131] transition-all px-6 py-3 shadow-none inline-flex items-center justify-center;
   }
-  .dark {
 
-    --background: 0 0% 3.9%;
-
-    --foreground: 0 0% 98%;
-
-    --card: 0 0% 3.9%;
-
-    --card-foreground: 0 0% 98%;
-
-    --popover: 0 0% 3.9%;
-
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 0 0% 98%;
-
-    --primary-foreground: 0 0% 9%;
-
-    --secondary: 0 0% 14.9%;
-
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 0 0% 14.9%;
-
-    --muted-foreground: 0 0% 63.9%;
-
-    --accent: 0 0% 14.9%;
-
-    --accent-foreground: 0 0% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 0 0% 14.9%;
-
-    --input: 0 0% 14.9%;
-
-    --ring: 0 0% 83.1%;
-
-    --chart-1: 220 70% 50%;
-
-    --chart-2: 160 60% 45%;
-
-    --chart-3: 30 80% 55%;
-
-    --chart-4: 280 65% 60%;
-
-    --chart-5: 340 75% 55%
+  .podia-btn-outline {
+    @apply bg-transparent text-[#1f1d1d] font-bold rounded-full border-2 border-[#1f1d1d] hover:bg-[#1f1d1d]/5 transition-all px-6 py-3 shadow-none inline-flex items-center justify-center;
   }
+
+  /* Podia Style Cards */
+  .podia-card-blue {
+    @apply bg-[#a6c5d4] text-[#1f1d1d];
+  }
+
+  .podia-card-orange {
+    @apply bg-[#e6a356] text-[#1f1d1d];
+  }
+
+  .podia-card-purple {
+    @apply bg-[#cdb4eb] text-[#1f1d1d];
+  }
+
+  .podia-card-yellow {
+    @apply bg-[#f2ce6e] text-[#1f1d1d];
+  }
+
+  .podia-card-green {
+    @apply bg-[#a1d1b6] text-[#1f1d1d];
+  }
+
+  .podia-card-white {
+    @apply bg-white border-transparent shadow-xl text-[#1f1d1d];
+  }
+
+  /* Form Inputs */
+  .podia-input {
+    @apply bg-white border-2 border-[#e0dad2] text-[#1f1d1d] h-12 rounded-xl focus:border-[#1f1d1d] focus:ring-0 focus:outline-none transition-colors w-full px-4 font-medium;
+  }
+
+  .podia-label {
+    @apply text-sm font-bold text-[#1f1d1d] mb-2 block;
+  }
+}
+
+/* Hide scrollbar for clean look */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d4cfc8;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #bfb9b2;
 }

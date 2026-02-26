@@ -1,5 +1,7 @@
 require('dotenv').config();
 const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
 const path = require('path');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -10,10 +12,41 @@ const sessionRoutes = require('./routes/session');
 const attendanceRoutes = require('./routes/attendance');
 
 const app = express();
+const server = http.createServer(app);
+
+// Socket.io setup
+const io = new Server(server, {
+    cors: {
+        origin: '*',
+        methods: ['GET', 'POST']
+    }
+});
+
+// Make io accessible to controllers via req.app
+app.set('io', io);
+
+// Socket.io connection handling
+io.on('connection', (socket) => {
+    console.log('Socket connected:', socket.id);
+
+    // Teacher/Student joins a session room for real-time updates
+    socket.on('joinSession', (sessionId) => {
+        socket.join(sessionId);
+        console.log(`Socket ${socket.id} joined session room: ${sessionId}`);
+    });
+
+    socket.on('leaveSession', (sessionId) => {
+        socket.leave(sessionId);
+    });
+
+    socket.on('disconnect', () => {
+        console.log('Socket disconnected:', socket.id);
+    });
+});
 
 // Middleware
 app.use(cors());
-app.use(express.json()); // Parse JSON bodies
+app.use(express.json());
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
@@ -42,8 +75,8 @@ app.get(/^(.*)$/, (req, res) => {
     res.sendFile(path.join(__dirname, 'frontend/dist', 'index.html'));
 });
 
-// Start Server
+// Start Server (using http server for Socket.io)
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`);
 });
