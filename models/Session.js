@@ -19,6 +19,14 @@ const sessionSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    classCode: {
+        type: String,
+        required: true
+    },
+    totalStudents: {
+        type: Number,
+        default: 60
+    },
     createdAt: {
         type: Date,
         default: Date.now

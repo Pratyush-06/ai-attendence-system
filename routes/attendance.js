@@ -4,14 +4,24 @@ const attendanceController = require('../controllers/attendanceController');
 const { verifyToken, requireStudent, requireTeacher } = require('../middleware/auth');
 
 // @route   POST api/attendance/mark
-// @desc    Mark attendance for a session (with Geofencing check)
+// @desc    Mark attendance for a session (QR scan)
 // @access  Private (Student)
 router.post('/mark', verifyToken, requireStudent, attendanceController.markAttendance);
+
+// @route   POST api/attendance/mark-by-code
+// @desc    Mark attendance using class code (fallback)
+// @access  Private (Student)
+router.post('/mark-by-code', verifyToken, requireStudent, attendanceController.markAttendanceByCode);
 
 // @route   GET api/attendance/session/:sessionId
 // @desc    Get attendance records for a specific session
 // @access  Private (Teacher)
 router.get('/session/:sessionId', verifyToken, requireTeacher, attendanceController.getSessionAttendance);
+
+// @route   GET api/attendance/student/stats
+// @desc    Get student attendance stats (subject-wise %)
+// @access  Private (Student)
+router.get('/student/stats', verifyToken, requireStudent, attendanceController.getStudentStats);
 
 // @route   GET api/attendance/student
 // @desc    Get all attendance records for the logged in student

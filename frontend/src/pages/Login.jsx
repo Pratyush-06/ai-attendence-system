@@ -1,41 +1,26 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { LogIn, ArrowLeft } from 'lucide-react';
-import { motion } from 'framer-motion';
 import api from '@/utils/api';
 import { useAuth } from '@/context/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 
 export default function Login({ type }) {
     const navigate = useNavigate();
     const { login } = useAuth();
-
     const [formData, setFormData] = useState({});
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
     const isTeacher = type === 'teacher';
-    const themeColor = isTeacher ? 'emerald' : 'indigo';
-
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setLoading(true);
-
         try {
             const endpoint = isTeacher ? '/auth/teacher/login' : '/auth/student/login';
             const response = await api.post(endpoint, formData);
-
             const { token, teacher, student } = response.data;
             const userData = isTeacher ? teacher : student;
-
             login(token, { ...userData, role: type });
             navigate(`/${type}/dashboard`);
         } catch (err) {
@@ -46,64 +31,43 @@ export default function Login({ type }) {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3 }}
-                className="sm:mx-auto sm:w-full sm:max-w-md"
-            >
-                <Card className="shadow-lg border-slate-200">
-                    <CardHeader className="space-y-4 pb-6 mt-4">
-                        <div className="flex justify-center">
-                            <div className={`p-4 rounded-full bg-${themeColor}-100 text-${themeColor}-600`}>
-                                <LogIn className="w-8 h-8" />
-                            </div>
-                        </div>
-                        <div className="text-center">
-                            <CardTitle className="text-2xl font-bold">Sign in to {isTeacher ? 'Teacher' : 'Student'} Portal</CardTitle>
-                            <CardDescription className="text-md mt-2">Enter your credentials to access your dashboard.</CardDescription>
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <form className="space-y-6" onSubmit={handleSubmit}>
+        <div className="min-h-screen bg-[#fdfaf6] flex flex-col justify-center px-4 relative overflow-hidden">
+            {/* Shapes */}
+            <div className="absolute bottom-10 left-[10%] w-24 h-24 bg-[#a6c5d4] rounded-full hidden md:block"></div>
+            <div className="absolute top-20 right-[15%] w-20 h-20 bg-[#e6a356] rounded-[24px] rotate-12 hidden md:block"></div>
+            <div className="absolute bottom-1/4 right-[25%] w-16 h-16 bg-[#cdb4eb] hidden md:block" style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}></div>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="id">{isTeacher ? 'Teacher ID' : 'Roll Number'}</Label>
-                                <Input
-                                    id={isTeacher ? 'teacherId' : 'rollNo'}
-                                    name={isTeacher ? 'teacherId' : 'rollNo'}
-                                    type="text" required onChange={handleChange}
-                                />
-                            </div>
+            <div className="absolute top-6 left-6 z-20">
+                <Link to="/" className="text-2xl font-black tracking-tighter text-[#1f1d1d] hover:opacity-80 transition-opacity">SmartAttend</Link>
+            </div>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="password">Password</Label>
-                                <Input id="password" name="password" type="password" required onChange={handleChange} />
-                            </div>
+            <div className="w-full max-w-md mx-auto podia-card-white rounded-[32px] p-8 sm:p-12 relative z-10">
+                <h2 className="text-3xl font-black text-[#1f1d1d] mb-2">{isTeacher ? 'Teacher' : 'Student'} Login</h2>
+                <p className="text-[15px] font-semibold text-[#1f1d1d]/70 mb-8">Enter your details to access your portal</p>
 
-                            {error && (
-                                <div className="text-red-600 text-sm text-center font-medium bg-red-50 p-3 rounded-md border border-red-100">
-                                    {error}
-                                </div>
-                            )}
+                <form className="space-y-5" onSubmit={handleSubmit}>
+                    <div>
+                        <label className="podia-label">{isTeacher ? 'Teacher ID' : 'Roll Number'}</label>
+                        <input name={isTeacher ? 'teacherId' : 'rollNo'} type="text" required onChange={e => setFormData({ ...formData, [e.target.name]: e.target.value })} className="podia-input" />
+                    </div>
+                    <div>
+                        <label className="podia-label">Password</label>
+                        <input name="password" type="password" required onChange={e => setFormData({ ...formData, password: e.target.value })} className="podia-input" />
+                    </div>
 
-                            <Button
-                                type="submit"
-                                disabled={loading}
-                                className={`w-full py-5 text-md font-medium ${isTeacher ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-indigo-600 hover:bg-indigo-700'}`}
-                            >
-                                {loading ? 'Signing in...' : 'Sign in'}
-                            </Button>
-                        </form>
-                    </CardContent>
-                    <CardFooter className="flex justify-center pb-6">
-                        <Link to="/" className="text-sm text-slate-500 hover:text-slate-900 flex items-center justify-center gap-1 transition-colors">
-                            <ArrowLeft className="w-4 h-4" /> Back to Home
-                        </Link>
-                    </CardFooter>
-                </Card>
-            </motion.div>
+                    {error && <div className="text-[#ef4444] bg-[#fef2f2] p-4 rounded-[16px] border-2 border-[#fecaca] text-[15px] font-bold">{error}</div>}
+
+                    <button type="submit" disabled={loading} className="podia-btn w-full text-lg mt-2 font-bold py-4">
+                        {loading ? 'Logging in...' : 'Log in'}
+                    </button>
+
+                    <div className="text-center mt-6">
+                        <p className="text-[15px] font-semibold text-[#1f1d1d]/80">
+                            Don't have an account? <Link to={`/${type}/register`} className="text-[#1f1d1d] underline decoration-2 underline-offset-4 hover:opacity-70 transition-opacity ml-1">Sign up</Link>
+                        </p>
+                    </div>
+                </form>
+            </div>
         </div>
     );
 }

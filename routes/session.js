@@ -8,6 +8,16 @@ const { verifyToken, requireTeacher } = require('../middleware/auth');
 // @access  Private (Teacher)
 router.post('/', verifyToken, requireTeacher, sessionController.createSession);
 
+// @route   GET api/sessions/analytics
+// @desc    Get analytics for teacher's sessions
+// @access  Private (Teacher)
+router.get('/analytics', verifyToken, requireTeacher, sessionController.getAnalytics);
+
+// @route   GET api/sessions/history
+// @desc    Get past sessions with full attendance details
+// @access  Private (Teacher)
+router.get('/history', verifyToken, requireTeacher, sessionController.getPastSessions);
+
 // @route   GET api/sessions
 // @desc    Get active sessions for a teacher
 // @access  Private (Teacher)
