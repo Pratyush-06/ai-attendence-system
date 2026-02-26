@@ -1,7 +1,10 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost:3000/api', // Pointing to the Express backend
+    baseURL: '/api', // Relative path to support Ngrok routing natively
+    headers: {
+        'ngrok-skip-browser-warning': 'true'
+    }
 });
 
 // Request interceptor to add the standard auth header

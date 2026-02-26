@@ -28,6 +28,13 @@ exports.markAttendance = async (req, res) => {
             return res.status(400).json({ error: 'Session ID and location are required' });
         }
 
+        // --- TEMP LOGGING TO FIND TEACHER'S HOME COORDINATES ---
+        const fs = require('fs');
+        const logLine = `[GEO-LOG] Received location from Student ${rollNo}: Lat ${location.lat}, Lng ${location.lng}\n`;
+        fs.appendFileSync('gps.log', logLine);
+        console.log(logLine.trim());
+
+
         // Verify session is valid, active, and not expired
         const session = await Session.findOne({ sessionId, active: true });
         if (!session) {

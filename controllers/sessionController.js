@@ -1,6 +1,13 @@
 const Session = require('../models/Session');
-const QRCode = require('qrcode');
 const { v4: uuidv4 } = require('uuid');
+
+const buildQrPayload = ({ sessionId, teacherId, subject }) =>
+    JSON.stringify({
+        sessionId,
+        teacherId,
+        subject,
+        timestamp: Date.now()
+    });
 
 // @desc    Create a new attendance session (Teacher only)
 // @route   POST api/sessions
@@ -15,16 +22,8 @@ exports.createSession = async (req, res) => {
 
         const sessionId = uuidv4();
 
-        // QR data can include sessionId and timestamp for validation
-        const qrDataPayload = JSON.stringify({
-            sessionId,
-            teacherId,
-            subject,
-            timestamp: Date.now()
-        });
-
-        // Generate QR code data URL (base64)
-        const qrDataUrl = await QRCode.toDataURL(qrDataPayload);
+        // Keep QR content lightweight so frontend QR generator never overflows.
+        const qrDataPayload = buildQrPayload({ sessionId, teacherId, subject });
 
         const expiresAt = new Date(Date.now() + durationMinutes * 60000);
 
@@ -32,7 +31,7 @@ exports.createSession = async (req, res) => {
             sessionId,
             teacherId,
             subject,
-            qrData: qrDataUrl,
+            qrData: qrDataPayload,
             expiresAt
         });
 
@@ -44,7 +43,7 @@ exports.createSession = async (req, res) => {
                 sessionId: session.sessionId,
                 subject: session.subject,
                 expiresAt: session.expiresAt,
-                qrCode: session.qrData
+                qrCode: qrDataPayload
             }
         });
 
@@ -67,7 +66,22 @@ exports.getActiveSessions = async (req, res) => {
             expiresAt: { $gt: new Date() }
         }).sort({ createdAt: -1 });
 
-        res.json(sessions);
+        const normalizedSessions = sessions.map((session) => {
+            const sessionObj = session.toObject();
+            const payload = buildQrPayload({
+                sessionId: sessionObj.sessionId,
+                teacherId: sessionObj.teacherId,
+                subject: sessionObj.subject
+            });
+
+            // For backward compatibility, always return a short QR payload field.
+            sessionObj.qrData = payload;
+            sessionObj.qrCode = payload;
+
+            return sessionObj;
+        });
+
+        res.json(normalizedSessions);
     } catch (err) {
         console.error(err.message);
         res.status(500).json({ error: 'Server error' });

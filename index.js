@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const path = require('path');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
@@ -30,6 +31,15 @@ app.use('/api/attendance', attendanceRoutes);
 // Simple health check endpoint
 app.get('/api/health', (req, res) => {
     res.status(200).json({ status: 'ok', message: 'AI Attendance Backend is running' });
+});
+
+// Serve frontend build dynamically
+app.use(express.static(path.join(__dirname, 'frontend/dist')));
+
+// The "catchall" handler: for any request that doesn't
+// match one above, send back React's index.html file.
+app.get(/^(.*)$/, (req, res) => {
+    res.sendFile(path.join(__dirname, 'frontend/dist', 'index.html'));
 });
 
 // Start Server
