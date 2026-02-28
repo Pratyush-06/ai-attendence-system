@@ -140,6 +140,68 @@ function StudentRosterPanel({ onSave, initial = [] }) {
     );
 }
 
+/* ─── Manual Attendance Panel ─── */
+function ManualAttendancePanel({ sessionId }) {
+    const [open, setOpen] = useState(false);
+    const [name, setName] = useState('');
+    const [roll, setRoll] = useState('');
+    const [submitting, setSubmitting] = useState(false);
+
+    const handleManualMark = async () => {
+        if (!name.trim() || !roll.trim()) { toast.error('Enter both name and roll number'); return; }
+        setSubmitting(true);
+        try {
+            const res = await api.post('/attendance/manual-mark', { sessionId, studentName: name.trim(), rollNo: roll.trim() });
+            if (res.data.alreadyMarked) {
+                toast.info(res.data.message);
+            } else {
+                toast.success(res.data.message);
+            }
+            setName(''); setRoll('');
+        } catch (err) {
+            toast.error(err.response?.data?.error || 'Failed to mark');
+        } finally { setSubmitting(false); }
+    };
+
+    return (
+        <div className="border-t-2 border-[#f0ebe1] bg-[#faf8f5]">
+            <button onClick={() => setOpen(!open)}
+                className="w-full px-5 sm:px-8 py-4 flex items-center justify-between text-left hover:bg-[#f0ebe1]/50 transition-colors">
+                <div className="flex items-center gap-2 font-bold text-sm sm:text-base">
+                    <UserPlus className="w-4 h-4" />
+                    <span>Manual Attendance</span>
+                    <span className="text-[#1f1d1d]/50 font-normal text-xs sm:text-sm">(for students without phone)</span>
+                </div>
+                <ChevronDown className={`w-5 h-5 transition-transform ${open ? 'rotate-180' : ''}`} />
+            </button>
+            <AnimatePresence>
+                {open && (
+                    <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden">
+                        <div className="px-5 sm:px-8 pb-5 flex flex-col sm:flex-row gap-3 items-end">
+                            <div className="flex-1 w-full">
+                                <label className="podia-label">Student Name</label>
+                                <input type="text" value={name} onChange={e => setName(e.target.value)}
+                                    onKeyDown={e => e.key === 'Enter' && handleManualMark()}
+                                    placeholder="e.g. Rahul Kumar" className="podia-input" />
+                            </div>
+                            <div className="w-full sm:w-40">
+                                <label className="podia-label">Roll No.</label>
+                                <input type="text" value={roll} onChange={e => setRoll(e.target.value)}
+                                    onKeyDown={e => e.key === 'Enter' && handleManualMark()}
+                                    placeholder="e.g. CS2401" className="podia-input" />
+                            </div>
+                            <button onClick={handleManualMark} disabled={submitting}
+                                className="podia-btn bg-[#a1d1b6] text-[#1f1d1d] hover:bg-[#8cc4a3] h-12 px-5 shrink-0 w-full sm:w-auto">
+                                {submitting ? 'Adding...' : <><UserPlus className="w-4 h-4 mr-1" /> Mark Present</>}
+                            </button>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+}
+
 /* ─── Main Dashboard ─── */
 export default function TeacherDashboard() {
     const { user, logout } = useAuth();
@@ -462,6 +524,9 @@ export default function TeacherDashboard() {
                                                 )}
                                             </div>
                                         </div>
+
+                                        {/* Manual Attendance Section */}
+                                        <ManualAttendancePanel sessionId={sid} />
 
                                         <div className="p-4 sm:p-6 bg-white border-t-2 border-[#f0ebe1] flex flex-col sm:flex-row gap-3">
                                             <button onClick={() => handleExport(sid)} className="podia-btn-outline flex-1 text-sm">

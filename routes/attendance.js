@@ -33,4 +33,9 @@ router.get('/student', verifyToken, requireStudent, attendanceController.getStud
 // @access  Private (Teacher)
 router.get('/export/:sessionId', verifyToken, requireTeacher, attendanceController.exportAttendance);
 
+// @route   POST api/attendance/manual-mark
+// @desc    Teacher manually marks a student present by name/roll
+// @access  Private (Teacher)
+router.post('/manual-mark', verifyToken, requireTeacher, attendanceController.manualMarkAttendance);
+
 module.exports = router;

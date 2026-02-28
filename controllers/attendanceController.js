@@ -280,3 +280,64 @@ exports.exportAttendance = async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 };
+
+// @desc    Manually mark a student present (Teacher adds by name/roll)
+// @route   POST api/attendance/manual-mark
+exports.manualMarkAttendance = async (req, res) => {
+    try {
+        const { sessionId, studentName, rollNo } = req.body;
+        const teacherId = req.user.teacherId;
+
+        if (!sessionId || !studentName || !rollNo) {
+            return res.status(400).json({ error: 'Session ID, student name, and roll number are required' });
+        }
+
+        const session = await Session.findOne({ sessionId, teacherId, active: true });
+        if (!session) {
+            return res.status(404).json({ error: 'Session not found, not yours, or already ended' });
+        }
+
+        const existing = await Attendance.findOne({ sessionId, rollNo });
+        if (existing) {
+            return res.status(200).json({ alreadyMarked: true, message: `${rollNo} is already marked present` });
+        }
+
+        const now = new Date();
+        const dateString = now.toISOString().split('T')[0];
+        const timeString = now.toTimeString().split(' ')[0];
+
+        const attendance = new Attendance({
+            sessionId,
+            rollNo,
+            subject: session.subject,
+            date: dateString,
+            time: timeString,
+            location: { lat: 0, lng: 0 },
+            status: 'Present'
+        });
+
+        await attendance.save();
+
+        const presentCount = await Attendance.countDocuments({ sessionId, status: 'Present' });
+
+        const io = req.app.get('io');
+        if (io) {
+            io.to(sessionId).emit('attendanceMarked', {
+                rollNo,
+                name: studentName,
+                sessionId,
+                presentCount,
+                totalStudents: session.totalStudents,
+                time: timeString
+            });
+        }
+
+        res.status(201).json({ message: `${studentName} marked present manually`, attendance });
+    } catch (err) {
+        if (err.code === 11000) {
+            return res.status(200).json({ alreadyMarked: true, message: 'Already marked present' });
+        }
+        console.error(err.message);
+        res.status(500).json({ error: 'Server error' });
+    }
+};
